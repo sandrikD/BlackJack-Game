@@ -1,0 +1,455 @@
+//Sandrik Dionido - Assignment 3: Blackjack Game
+#include <iostream>
+#include <ctime>
+#include <iomanip>
+using namespace std;
+
+//record table setw 
+const int RECORD_TABLE = 7;
+const int RECORD_NUMBERS = 3;
+
+const int PLAYER = 1;
+const int DEALER = 0;
+const int SHOW_HAND = 1;
+const int HIDE_HAND = 0;
+
+const int WIN = 1;
+const int LOSE = -1;
+const int DRAW = 0;
+
+const int LOWER_CASE_H = 104;   //for hit
+const int UPPER_CASE_H = 72;    //for hit   
+const int LOWER_CASE_S = 115;   //for stay  
+const int UPPER_CASE_S = 83;    //for stay
+const int LOWER_CASE_Y = 121;   //for yes(to play)
+
+//for card type
+const int ACE = 1;
+const int TWO = 2;
+const int THREE = 3;
+const int FOUR = 4;
+const int FIVE = 5;
+const int SIX = 6;
+const int SEVEN = 7;
+const int EIGHT = 8;
+const int NINE = 9;
+const int TEN = 10;
+const int JACK = 11;
+const int QUEEN  = 12;
+const int KING = 13;
+
+//for card suit
+const int HEARTS = 1;
+const int DIAMONDS = 2;
+const int SPADES = 3;
+const int CLUBS = 4;
+
+//Function: Display card
+void displayCard(int card, int cardSuit){
+    //print card based on card number
+    if (card == ACE){
+        cout << "ace of "; 
+    }
+    if (card == TWO){
+        cout << "two of ";
+    }
+    if (card == THREE){
+        cout << "three of ";
+    }
+    if (card == FOUR){
+        cout << "four of ";
+    }
+    if (card == FIVE){
+        cout << "five of ";
+    }
+    if (card == SIX){
+        cout << "six of ";
+    }
+    if (card == SEVEN){
+        cout << "seven of ";
+    }
+    if (card == EIGHT){
+        cout << "eight of ";
+    }
+    if (card == NINE){
+        cout << "nine of ";
+    }
+    if (card == TEN){
+        cout << "ten of ";
+    }
+    if (card == JACK){
+        cout << "jack of ";
+    }
+    if (card == QUEEN){
+        cout << "queen of ";
+    }
+    if (card == KING){
+        cout << "king of ";
+    }
+
+    //Print card suit
+    if(cardSuit == HEARTS){
+        cout << "hearts";
+    }
+    if(cardSuit == DIAMONDS){
+        cout << "diamonds";
+    }
+    if(cardSuit == SPADES){
+        cout << "spades";
+    }
+    if(cardSuit == CLUBS){
+        cout << "clubs";
+    }
+
+}
+
+//Function: Get a card
+int getCard(){
+    int numOfTypesOfCards = 13;
+    int card = 0;
+    card = rand() % numOfTypesOfCards + 1;
+    return card;
+}
+
+//Function: Get suit of card
+int getCardSuit(){
+    int numOfSuits = 4;
+    int cardSuit = 0;
+    cardSuit = rand() % numOfSuits + 1;
+    return cardSuit;
+}
+
+
+//Function: Return card's score based on blackjack rules
+int cardScore(int card){
+    int cardValue = 0;
+    if (card == ACE){
+        cardValue = 11; //ace == 11
+    }
+    if (card == TWO){
+        cardValue = 2;
+    }
+    if (card == THREE){
+        cardValue = 3;
+    }
+    if (card == FOUR){
+        cardValue = 4;
+    }
+    if (card == FIVE){
+        cardValue = 5;
+    }
+    if (card == SIX){
+        cardValue = 6;
+    }
+    if (card == SEVEN){
+        cardValue = 7;
+    }
+    if (card == EIGHT){
+        cardValue = 8;
+    }
+    if (card == NINE){
+        cardValue = 9;
+    }
+    if (card == TEN){
+        cardValue = 10;
+    }
+    if (card == JACK){
+        cardValue = 10; //jack == 10
+    }
+    if (card == QUEEN){
+        cardValue = 10; //queen == 10
+    }
+    if (card == KING){ 
+        cardValue = 10; //king == 10
+    }
+    return cardValue;
+}
+
+//Function: Deal cards. (Generate next card, printing out card, return card's score)
+int deal(bool isPlayer, bool isShown){
+    int card = getCard();
+    int cardSuit = getCardSuit();
+    int cardValue = cardScore(card);
+    
+    //Determine if card dealt is to player or dealer
+    if(isPlayer){
+        cout << "PLAYER was dealt ";
+    }
+    else{
+        cout << "DEALER was dealt ";
+    }
+
+    //Print if isShown is true. If so, card is shown, otherwise, card is hidden
+    if(isShown){
+        displayCard(card, cardSuit);
+    }
+    else{
+        cout << "a hidden card";
+    }
+
+    return cardValue;
+}
+
+//Function: if player is dealt an ace, choose whether it is worth 1 or 11
+int valueOfAce(int playerCard){
+    if (playerCard == 11){
+        int cardValue = 0;
+        //prompt user to choose value. Keep prompting until value is 1 or 11.
+        while(cardValue != 1 && cardValue != 11){
+            cout << "You have been dealt an ace. Choose whether this ace is worth 1 or 11: ";
+            cin >> cardValue;
+        }
+        return cardValue;
+    }
+    return 0;
+}
+
+//Function: Display Player and dealer score
+   void displayPlayerAndDealerScore(int playerScore, int dealerScore){
+    cout << endl; 
+    cout << "PLAYER score = " << playerScore;
+    cout << endl;
+    cout << "DEALER score = " << dealerScore;
+    cout << endl << endl;
+}    
+
+//Function: Check if anyone has 21 or goes bust after first set of cards have been dealt. Reveal dealer card and final scores and return result
+int checkFor21OrBust(int playerScore, int dealerScore){
+
+    //If both player and dealer have 21, reveal score and call a draw.
+    if (playerScore == 21 && dealerScore == 21){
+        cout << "DEALER reveals their second card";
+        displayPlayerAndDealerScore(playerScore, dealerScore);
+        cout << "Draw! You and the dealer have 21!";
+        return DRAW;
+    }
+
+    //If player has 21, player wins
+    if (playerScore == 21){
+        cout << "DEALER reveals their second card";
+        displayPlayerAndDealerScore(playerScore, dealerScore);
+        cout << "You have 21, you win!";
+        return WIN;
+    }
+
+    //If dealer has 21, player loses
+    if (dealerScore == 21){
+        cout << "DEALER reveals their second card";
+        displayPlayerAndDealerScore(playerScore, dealerScore);
+        cout << "Dealer has 21, you lose!";
+        return LOSE;
+    }
+
+    //If player has over 21, player loses
+    if (playerScore > 21){
+        cout << "DEALER reveals their second card";
+        displayPlayerAndDealerScore(playerScore, dealerScore);
+        cout << "Bust! You lose!";
+        return LOSE;
+    }
+
+    //If dealer has over 21, player wins
+    if (dealerScore > 21){
+        cout << "DEALER reveals their second card";
+        displayPlayerAndDealerScore(playerScore, dealerScore);
+        cout << "Dealer is bust, you win!";
+        return WIN;
+    }
+    return 2;
+}
+
+//Function: prompt user to hit or stand. Return lowerCaseH for hit and lowerCaseS for stay
+int hitOrStand(){
+
+    //prompt user to hit or stand
+    char userInput = 65;
+    cout << "Enter h to hit or s to stand: ";
+    cin >> userInput;
+
+    //check if userInput is hit or stand
+    if (userInput == LOWER_CASE_H){
+        return LOWER_CASE_H;
+    }
+    if (userInput == UPPER_CASE_H){
+        return UPPER_CASE_H;
+    }
+    if (userInput == LOWER_CASE_S){
+        return LOWER_CASE_S;
+    }
+    if (userInput == UPPER_CASE_S){
+        return UPPER_CASE_S;
+    }
+    return 0;
+}
+
+
+
+//Function: play a game of blackjack 
+int playHand(){
+
+    int playerCard1 = 0;
+    int playerCard2 = 0;
+    int dealerCard1 = 0;
+    int dealerCard2 = 0;
+    
+    //Deal opening cards to player and dealer
+    cout << endl;
+
+    //deal card to player
+    playerCard1 = deal(PLAYER, SHOW_HAND);
+    cout << endl;
+    //If player is dealt an ace, they choose whether it is 1 or 11
+    if (playerCard1 == 11){
+        playerCard1 = valueOfAce(playerCard1);
+    }
+    
+    //deal card to dealer
+    dealerCard1 = deal(DEALER, SHOW_HAND);
+    cout << endl;
+    
+    //deal second card to player
+    playerCard2 = deal(PLAYER, SHOW_HAND);
+    cout << endl;
+    //If player is dealt an ace, they choose whether it is 1 or 11
+    if (playerCard2 == 11){
+        playerCard2 = valueOfAce(playerCard2);
+    }
+    
+    //deal second card to dealer
+    dealerCard2 = deal(DEALER, HIDE_HAND);
+    cout << endl;
+
+
+    //Display Player and dealer score after first set of cards are dealt
+    int playerScore = playerCard1 + playerCard2;
+    int dealerScore = dealerCard1 + dealerCard2;
+    displayPlayerAndDealerScore(playerScore, dealerCard1);
+
+    //Check if anyone's score is greater than or equal to 21 after first set of cards are dealt
+    int gameResult = 0;
+    gameResult = checkFor21OrBust(playerScore, dealerScore);
+    if (gameResult == LOSE){
+        return LOSE;
+    }
+    if (gameResult == DRAW){
+        return DRAW;
+    }
+    if (gameResult == WIN){
+        return WIN;
+    }
+
+    //prompt user to hit or stand. Keep prompting user to hit or stand until user stays.
+    int newCardValue = 0;
+    int playerHitOrStand = 0;
+    while (playerHitOrStand != LOWER_CASE_S && playerHitOrStand != UPPER_CASE_S){
+        playerHitOrStand = hitOrStand();
+        
+        //if player hits, deal a card and add its value to the player's score and display.
+        if(playerHitOrStand == LOWER_CASE_H || playerHitOrStand == UPPER_CASE_H){
+            newCardValue = deal(PLAYER, SHOW_HAND);
+            cout << endl; 
+            //check if player was dealt an ace. If so choose whether it's 1 or 11
+            if (newCardValue == 11){
+                newCardValue = valueOfAce(newCardValue);
+            }
+            playerScore += newCardValue;
+            
+
+            //check if player busts
+            if (playerScore > 21){
+                cout << endl << "DEALER reveals their second card";
+                displayPlayerAndDealerScore(playerScore, dealerScore);
+                cout << "Bust! You lose!";
+                return LOSE;
+            }
+            else{
+                displayPlayerAndDealerScore(playerScore, dealerCard1);
+            }   
+        }
+    }
+
+    //reveal dealer's second card
+    cout << endl << "DEALER reveals their second card";
+    displayPlayerAndDealerScore(playerScore, dealerScore);
+
+    //If the dealer's score is less than seventeen, dealer takes a card. Dealer takes cards until score is greater that or equal to 17 or goes bust.
+    while (dealerScore < 17){
+        //draw card for dealer and show new score
+        newCardValue = deal(DEALER, SHOW_HAND);
+        dealerScore += newCardValue;
+        displayPlayerAndDealerScore(playerScore, dealerScore);
+
+        //check if dealer has 21 or went bust
+        if (dealerScore > 21){
+            cout << "Dealer is bust, you win!";
+            return WIN;
+        }
+        if (dealerScore == 21){
+            cout << "Dealer has 21, you lose!";
+            return LOSE;
+        }
+    }
+
+    //Compare dealer's score to player's score. Higer score wins.
+    if (playerScore == dealerScore){
+        cout << "Draw! You and the dealer have the same score!";
+        return DRAW;
+    }
+    if (playerScore > dealerScore){
+        cout << "Your score is higher, you win!";
+        return WIN;
+    }
+    else{
+        cout << "Dealer's score is higher, you lose!";
+        return LOSE;
+    }
+   
+    
+    return 0;
+}
+
+int main(){
+    
+    srand(time(nullptr)); 
+
+    //display welcome message
+    cout << "BLACKJACK" << endl;
+    cout << "---------" << endl;
+
+    //prompt user to play blackjack
+    char userInput = 65;
+    cout << "Do you want to play a hand of blackjack (y to play)? ";
+    cin >> userInput;
+   
+    char playerDecision = LOWER_CASE_Y;
+    int gameResult = 0;
+    int numOfWins = 0;
+    int numOfLosses = 0;
+    int numOfDraws = 0;
+
+    //if answer is yes, run program
+    if(userInput == LOWER_CASE_Y){
+        //Loop blackjack games until user decides to quit the program. 
+        while (playerDecision == LOWER_CASE_Y){
+            gameResult = playHand();
+            if(gameResult == WIN){      //count wins
+                numOfWins++;
+            }
+            if(gameResult == LOSE){     //count losses    
+                numOfLosses++;
+            }
+            if(gameResult == DRAW){      //count draws
+                numOfDraws++;
+            }
+            cout << endl << endl << "Do you want to play another hand (y to play)? ";
+            cin >> playerDecision;
+        }
+    }
+    //Print record of wins, losses and draws
+    cout << endl << endl << "Thanks for playing, your record was: ";
+    cout << endl << setw(RECORD_TABLE) << "wins:" << setw(RECORD_NUMBERS) << numOfWins;
+    cout << endl << setw(RECORD_TABLE) << "losses:" << setw(RECORD_NUMBERS) << numOfLosses;
+    cout << endl << setw(RECORD_TABLE) << "draws:" << setw(RECORD_NUMBERS) << numOfDraws;
+   
+    return 0; 
+}
